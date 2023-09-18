@@ -1,0 +1,170 @@
+﻿@page "/journal/rapport"
+@using ClosedXML.Report
+@using Newtonsoft.Json
+@using System.Text
+@using OSIET_Finance.Controller.Finance
+@using OSIET_Finance.Models
+@using OSIET_Finance.Models.Finance
+@using System.Diagnostics
+@inject IJournalService journalService
+@inject IJSRuntime JS
+@inject NavigationManager NavigationManager
+@inject IDialogService Dialog
+
+<MudContainer Class="mt-4">
+    @*<MudForm @ref="form" @bind-IsValid="success">*@
+    <MudPaper>
+        <MudDivider />
+        <div>
+            <h3 class="py-2 ml-2">
+                <MudIcon Class="mr-2" style="float: left" Icon="@Icons.Material.Filled.DateRange"></MudIcon>
+                <span style="font-size:14px">RAPPORT ENTRE DEUX DATE</span>
+            </h3>
+        </div>
+        <MudDivider />
+        <MudContainer>
+            <MudGrid>
+                <MudItem xs="12" sm="2">
+                    <MudText Typo="Typo.subtitle2" Class="mt-3" Style="float:left"><b>Date Début :</b></MudText>
+                </MudItem>
+                <MudItem xs="6" sm="3">
+                    <MudDatePicker @ref="_picker1" Label="Début" AutoClose="@autoClose" Required Variant="Variant.Outlined" Margin="Margin.Dense">
+                        <PickerActions>
+                            <MudButton Class="mr-auto align-self-start" OnClick="@(() => _picker1.Clear())">Clear</MudButton>
+                            <MudButton OnClick="@(() => _picker1.Close(false))">Cancel</MudButton>
+                            <MudButton Color="Color.Primary" OnClick="@(() => _picker1.Close())">Ok</MudButton>
+                        </PickerActions>
+                    </MudDatePicker>
+                </MudItem>
+                <MudItem xs="6" sm="3">
+                    <MudDatePicker @ref="_picker2" Label="Fin" AutoClose="@autoClose" Required Variant="Variant.Outlined" Margin="Margin.Dense">
+                        <PickerActions>
+                            <MudButton Class="mr-auto align-self-start" OnClick="@(() => _picker2.Clear())">Clear</MudButton>
+                            <MudButton OnClick="@(() => _picker2.Close(false))">Cancel</MudButton>
+                            <MudButton Color="Color.Primary" OnClick="@(() => _picker2.Close())">Ok</MudButton>
+                        </PickerActions>
+                    </MudDatePicker>
+                </MudItem>
+                <MudItem>
+                    <MudButton OnClick="ReportEntreDeuxDate" Class="mt-1" Variant="Variant.Filled" Color="Color.Tertiary" ButtonType="ButtonType.Button" Style="width:100%">Exporter</MudButton>
+                </MudItem>
+            </MudGrid>
+        </MudContainer>
+    </MudPaper>
+    @*</MudForm>*@
+
+    <MudForm @ref="formAnnuel" @bind-IsValid="successAnnuel">
+        <MudPaper Class="mt-8">
+            <MudDivider />
+            <div>
+                <h3 class="py-2 ml-2">
+                    <MudIcon Class="mr-2" style="float: left" Icon="@Icons.Material.Filled.DateRange"></MudIcon>
+                    <span style="font-size:14px">RAPPORT ENTRE DEUX DATE</span>
+                </h3>
+            </div>
+            <MudDivider />
+            <MudContainer>
+                <MudGrid>
+                    <MudItem xs="12" sm="2">
+                        <MudText Typo="Typo.subtitle2" Class="mt-3" Style="float:left"><b>Année du rapport :</b></MudText>
+                    </MudItem>
+                    <MudItem xs="6" sm="3">
+                        <MudTextField @bind-Value="_picker3" Mask="mask1" T="int" Label="Année" Variant="Variant.Outlined" Margin="Margin.Dense"></MudTextField>
+                    </MudItem>
+                    <MudItem>
+                        <MudButton OnClick="ReportAnnuel" Class="mt-1" Variant="Variant.Filled" Color="Color.Tertiary" ButtonType="ButtonType.Button" Style="width:100%">Exporter</MudButton>
+                    </MudItem>
+                </MudGrid>
+            </MudContainer>
+        </MudPaper>
+    </MudForm>
+</MudContainer>
+
+
+@code {
+    MudForm? form;
+    MudForm? formAnnuel;
+    bool success = false;
+    bool successAnnuel = false;
+    MudDatePicker? _picker1;
+    MudDatePicker? _picker2;
+    int _picker3;
+    private bool autoClose = true;
+    public IMask mask1 = new RegexMask(@"^\d+$");
+    List<Journal> journals = new List<Journal>();
+
+    private readonly IWebHostEnvironment _env;
+
+    private async Task ReportEntreDeuxDate()
+    {
+        DateTime? d1, d2;
+        d1 = _picker1.Date;
+        d2 = _picker2.Date;
+        DataSend Data = new();
+
+        if (d1 == null || d2 == null)
+        {
+            var parameters = new DialogParameters();
+            string message = "Compléter tous les champs. SVP!";
+
+            parameters.Add("ContentText", message);
+            parameters.Add("ButtonText", "Ok");
+            parameters.Add("Color", Color.Warning);
+
+            var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall };
+
+            var dialogUser = Dialog.Show<_DialogMontantInsuffisant>("Attention !", parameters, options);
+            var resultDialogUser = await dialogUser.Result;
+        }
+        else
+        {
+            Data.d1 = d1.Value.ToShortDateString();
+            Data.d2 = d2.Value.ToShortDateString();
+
+            var json = JsonConvert.SerializeObject(Data);
+            var data = new StringContent(json, Encoding.UTF8, "application/json");
+            var url = new Uri(NavigationManager.BaseUri + "api/File/DownloadJournalInTwoDate");
+            using var client = new HttpClient();
+            var response = await client.PostAsync(url, data);
+            response.EnsureSuccessStatusCode();
+            var fileBytes = await response.Content.ReadAsByteArrayAsync();
+            var fileName = $"RapportJournal--{DateTime.Now.ToString("dd-MM-yyyy", System.Globalization.CultureInfo.InvariantCulture)}.xlsx";
+            await JS.InvokeVoidAsync("saveAsFile", fileName, Convert.ToBase64String(fileBytes));
+        }
+    }
+
+    private async Task ReportAnnuel()
+    {
+        DataSend Data = new();
+
+        if (_picker3 <2000 || _picker3 > 2050)
+        {
+            var parameters = new DialogParameters();
+            string message = "Année entrée doit être comprise entre 2000 et 2050.";
+
+            parameters.Add("ContentText", message);
+            parameters.Add("ButtonText", "Ok");
+            parameters.Add("Color", Color.Warning);
+
+            var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall };
+
+            var dialogUser = Dialog.Show<_DialogMontantInsuffisant>("Attention !", parameters, options);
+            var resultDialogUser = await dialogUser.Result;
+        }
+        else
+        {
+            Data.annee = _picker3.ToString();
+
+            var json = JsonConvert.SerializeObject(Data);
+            var data = new StringContent(json, Encoding.UTF8, "application/json");
+            var url = new Uri(NavigationManager.BaseUri + "api/File/DownloadJournalAnnuel");
+            using var client = new HttpClient();
+            var response = await client.PostAsync(url, data);
+            response.EnsureSuccessStatusCode();
+            var fileBytes = await response.Content.ReadAsByteArrayAsync();
+            var fileName = $"RapportJournal--{DateTime.Now.ToString("dd-MM-yyyy", System.Globalization.CultureInfo.InvariantCulture)}.xlsx";
+            await JS.InvokeVoidAsync("saveAsFile", fileName, Convert.ToBase64String(fileBytes));
+        }
+    }
+
+}

@@ -1,0 +1,36 @@
+﻿@using OSIET_Finance.Data.AuthetificationState
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject NavigationManager NavigationManager
+@inject Blazored.LocalStorage.ILocalStorageService localStorage
+
+<MudMenu FullWidth="true" ActivationEvent="@MouseEvent.MouseOver" AnchorOrigin="Origin.BottomCenter" TransformOrigin="Origin.TopCenter">
+    <ActivatorContent>
+        <MudChip Icon="@Icons.Material.Filled.Person" Color="Color.Primary">@nameEmail</MudChip>
+    </ActivatorContent>
+    <ChildContent>
+        @*<MudMenuItem>Profile</MudMenuItem>*@
+        @*<MudDivider/>*@
+        <MudMenuItem OnClick="Logout" Icon="@Icons.Material.Filled.Logout" >Déconnexion</MudMenuItem>
+    </ChildContent>
+</MudMenu>
+
+@code {
+    string? nameEmail;
+
+    protected override async void OnInitialized()
+    {
+        nameEmail = await localStorage.GetItemAsync<string>("emailAddress");
+        await InvokeAsync(StateHasChanged);
+    }
+
+    public void Logout()
+    {
+        ((CustomAuthenticationStateProvider)AuthenticationStateProvider).MarkUserAsLoggedOut();
+        NavigationManager.NavigateTo("/login");
+    }
+
+    public void profile()
+    {
+        NavigationManager.NavigateTo("/profile");
+    }
+}

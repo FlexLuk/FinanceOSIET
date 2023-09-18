@@ -1,0 +1,121 @@
+{
+  "Files": [
+    {
+      "Id": "C:\\Users\\Flex\\source\\repos\\OSIET_Finance\\wwwroot\\Pieces\\.pdf",
+      "PackagePath": "staticwebassets\\Pieces\\.pdf"
+    },
+    {
+      "Id": "C:\\Users\\Flex\\source\\repos\\OSIET_Finance\\wwwroot\\Pieces\\7423874.jpg",
+      "PackagePath": "staticwebassets\\Pieces\\7423874.jpg"
+    },
+    {
+      "Id": "C:\\Users\\Flex\\source\\repos\\OSIET_Finance\\wwwroot\\Pieces\\Flex 5.jpg",
+      "PackagePath": "staticwebassets\\Pieces\\Flex 5.jpg"
+    },
+    {
+      "Id": "C:\\Users\\Flex\\source\\repos\\OSIET_Finance\\wwwroot\\Pieces\\Flex.JPG",
+      "PackagePath": "staticwebassets\\Pieces\\Flex.JPG"
+    },
+    {
+      "Id": "C:\\Users\\Flex\\source\\repos\\OSIET_Finance\\wwwroot\\Pieces\\Recu N°10262.jpg",
+      "PackagePath": "staticwebassets\\Pieces\\Recu N°10262.jpg"
+    },
+    {
+      "Id": "C:\\Users\\Flex\\source\\repos\\OSIET_Finance\\wwwroot\\Pieces\\VCK-01.jpg",
+      "PackagePath": "staticwebassets\\Pieces\\VCK-01.jpg"
+    },
+    {
+      "Id": "C:\\Users\\Flex\\source\\repos\\OSIET_Finance\\wwwroot\\Pieces\\ad-072023-jeanluc.pdf",
+      "PackagePath": "staticwebassets\\Pieces\\ad-072023-jeanluc.pdf"
+    },
+    {
+      "Id": "C:\\Users\\Flex\\source\\repos\\OSIET_Finance\\wwwroot\\Pieces\\cheque n°123.JPG",
+      "PackagePath": "staticwebassets\\Pieces\\cheque n°123.JPG"
+    },
+    {
+      "Id": "C:\\Users\\Flex\\source\\repos\\OSIET_Finance\\wwwroot\\Pieces\\test mvola.jpg",
+      "PackagePath": "staticwebassets\\Pieces\\test mvola.jpg"
+    },
+    {
+      "Id": "C:\\Users\\Flex\\source\\repos\\OSIET_Finance\\wwwroot\\Pieces\\teste dnraiky.jpg",
+      "PackagePath": "staticwebassets\\Pieces\\teste dnraiky.jpg"
+    },
+    {
+      "Id": "C:\\Users\\Flex\\source\\repos\\OSIET_Finance\\wwwroot\\Pieces\\teste v.jpg",
+      "PackagePath": "staticwebassets\\Pieces\\teste v.jpg"
+    },
+    {
+      "Id": "C:\\Users\\Flex\\source\\repos\\OSIET_Finance\\wwwroot\\Pieces\\tester.jpg",
+      "PackagePath": "staticwebassets\\Pieces\\tester.jpg"
+    },
+    {
+      "Id": "C:\\Users\\Flex\\source\\repos\\OSIET_Finance\\wwwroot\\Pieces\\v.jpg",
+      "PackagePath": "staticwebassets\\Pieces\\v.jpg"
+    },
+    {
+      "Id": "C:\\Users\\Flex\\source\\repos\\OSIET_Finance\\wwwroot\\Pieces\\www.xlsx",
+      "PackagePath": "staticwebassets\\Pieces\\www.xlsx"
+    },
+    {
+      "Id": "C:\\Users\\Flex\\source\\repos\\OSIET_Finance\\wwwroot\\Template\\Annuel.xlsx",
+      "PackagePath": "staticwebassets\\Template\\Annuel.xlsx"
+    },
+    {
+      "Id": "C:\\Users\\Flex\\source\\repos\\OSIET_Finance\\wwwroot\\Template\\mensuel.xlsx",
+      "PackagePath": "staticwebassets\\Template\\mensuel.xlsx"
+    },
+    {
+      "Id": "C:\\Users\\Flex\\source\\repos\\OSIET_Finance\\wwwroot\\favicon.ico",
+      "PackagePath": "staticwebassets\\favicon.ico"
+    },
+    {
+      "Id": "C:\\Users\\Flex\\source\\repos\\OSIET_Finance\\wwwroot\\images\\compte\\bfv.jpg",
+      "PackagePath": "staticwebassets\\images\\compte\\bfv.jpg"
+    },
+    {
+      "Id": "C:\\Users\\Flex\\source\\repos\\OSIET_Finance\\wwwroot\\images\\compte\\bni.jpg",
+      "PackagePath": "staticwebassets\\images\\compte\\bni.jpg"
+    },
+    {
+      "Id": "C:\\Users\\Flex\\source\\repos\\OSIET_Finance\\wwwroot\\images\\compte\\boa.jpg",
+      "PackagePath": "staticwebassets\\images\\compte\\boa.jpg"
+    },
+    {
+      "Id": "C:\\Users\\Flex\\source\\repos\\OSIET_Finance\\wwwroot\\images\\compte\\caisse.jpg",
+      "PackagePath": "staticwebassets\\images\\compte\\caisse.jpg"
+    },
+    {
+      "Id": "C:\\Users\\Flex\\source\\repos\\OSIET_Finance\\wwwroot\\images\\compte\\caisse.png",
+      "PackagePath": "staticwebassets\\images\\compte\\caisse.png"
+    },
+    {
+      "Id": "C:\\Users\\Flex\\source\\repos\\OSIET_Finance\\wwwroot\\images\\finance-chart.png",
+      "PackagePath": "staticwebassets\\images\\finance-chart.png"
+    },
+    {
+      "Id": "C:\\Users\\Flex\\source\\repos\\OSIET_Finance\\wwwroot\\images\\ico-fi.jpg",
+      "PackagePath": "staticwebassets\\images\\ico-fi.jpg"
+    },
+    {
+      "Id": "C:\\Users\\Flex\\source\\repos\\OSIET_Finance\\wwwroot\\images\\ifra-icone.png",
+      "PackagePath": "staticwebassets\\images\\ifra-icone.png"
+    },
+    {
+      "Id": "obj\\Debug\\net6.0\\staticwebassets\\msbuild.OSIET_Finance.Microsoft.AspNetCore.StaticWebAssets.props",
+      "PackagePath": "build\\Microsoft.AspNetCore.StaticWebAssets.props"
+    },
+    {
+      "Id": "obj\\Debug\\net6.0\\staticwebassets\\msbuild.build.OSIET_Finance.props",
+      "PackagePath": "build\\OSIET_Finance.props"
+    },
+    {
+      "Id": "obj\\Debug\\net6.0\\staticwebassets\\msbuild.buildMultiTargeting.OSIET_Finance.props",
+      "PackagePath": "buildMultiTargeting\\OSIET_Finance.props"
+    },
+    {
+      "Id": "obj\\Debug\\net6.0\\staticwebassets\\msbuild.buildTransitive.OSIET_Finance.props",
+      "PackagePath": "buildTransitive\\OSIET_Finance.props"
+    }
+  ],
+  "ElementsToRemove": []
+}

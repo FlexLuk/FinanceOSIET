@@ -1,0 +1,74 @@
+﻿@using OSIET_Finance.Controller.OptionAvancees
+@using OSIET_Finance.Models.Finance
+@inject IOptionAvancees optionService
+
+<MudContainer>
+    <MudForm @ref="form" @bind-IsValid="success">
+        <MudGrid>
+            <MudItem xs="4" sm="4">
+                <MudTextField Label="Nom imputation" Variant="Variant.Outlined" Margin="Margin.Dense" @bind-Value=@imputation.Nom Required="true" RequiredError="Nom de l'imputation obligatoire"></MudTextField>
+            </MudItem>
+            <MudItem xs="4" sm="4">
+                <MudTextField @ref=@numResetTextField Clearable Mask="mask1" T="int" Label="Numéro imputation" Variant="Variant.Outlined" Margin="Margin.Dense" @bind-Value=@imputation.NumeroCompte Required="true" RequiredError="Numéro de compte obligatoire"></MudTextField>
+            </MudItem>
+            <MudItem xs="4" sm="4">
+                <MudSelect @ref=@TypeResetSelect @bind-Value=imputation.Type Variant="Variant.Outlined" Margin="Margin.Dense" Clearable T="string" Label="Type d'imputation" AnchorOrigin="Origin.BottomCenter" Required="true" RequiredError="Ceci est aussi obligatoire">
+                    <MudSelectItem Value="@("Entrée")" />
+                    <MudSelectItem Value="@("Sortie")" />
+                </MudSelect>
+            </MudItem>
+        </MudGrid>
+    </MudForm>
+    <div style="float: right; margin-top: 15px; margin-bottom:15px">
+        <MudButton StartIcon="@Icons.Material.Filled.Cancel" Class="mr-3" Color="Color.Secondary" Variant="Variant.Filled" OnClick="Annuler">Annuler</MudButton>
+        <MudButton StartIcon="@Icons.Material.Filled.Edit" Color="Color.Info" Variant="Variant.Filled" OnClick="EditImputation">Modifier</MudButton>
+    </div>
+
+</MudContainer>
+
+@code {
+    [Parameter]
+    public Imputation imputation { get; set; } = new Imputation();
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+    MudForm? form;
+    MudTable<Imputation>? tableImputation;
+    MudSelect<string>? TypeResetSelect;
+    MudTextField<int>? numResetTextField;
+    bool success = false;
+    public IMask mask1 = new RegexMask(@"^\d+$");
+    private bool isVisible;
+
+    private async void EditImputation(){
+        bool result = await optionService.UpdateImputationAsync(imputation);
+        if (result)
+        {
+            MudDialog.Close(DialogResult.Ok(true));
+        }
+        else
+        {
+            MudDialog.Close(DialogResult.Ok(false));
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        base.OnInitialized();
+    }
+
+    private void OnValueChanged(string _type)
+    {
+        imputation.Type = _type;
+    }
+
+    private void Annuler()
+    {
+        imputation.Nom = "";
+        imputation.Type = "";
+        TypeResetSelect.Clear();
+        numResetTextField.Clear();
+        form.ResetValidation();
+        StateHasChanged();
+        MudDialog.Cancel();
+    }
+
+}

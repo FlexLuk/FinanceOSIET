@@ -1,0 +1,102 @@
+﻿@page "/authentification"
+@using System.ComponentModel.DataAnnotations
+@using OSIET_Finance.Data.AuthetificationState
+@using OSIET_Finance.Models.Administration
+@layout OSIET_Finance.Shared.Autorisation.AuthentificationLayout
+@inject ISnackbar Snackbar
+@inject Blazored.LocalStorage.ILocalStorageService localStorage
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject NavigationManager NavigationManager
+@inject ILoginControl LogCtrl
+
+<EditForm OnValidSubmit="OnValidSubmit" Model="@user">
+    <MudGrid Justify="Justify.Center" Class="mt-n12">
+        <MudCard Style="width: 400px" Class="">
+            <MudGrid Justify="Justify.Center" Class="mt-4" Style="color: #4CAF50; ">
+                <h2><b>GESION FINANCIERE D'OSIET</b></h2>
+            </MudGrid>
+            <MudGrid Justify="Justify.Center">
+                <MudPaper Elevation="0" Class="mb-4 mt-4">
+                    <MudImage Src="images/finance-chart.png" Alt="IFRA logo" Height="100" />
+                </MudPaper>
+            </MudGrid>
+
+            <MudDivider />
+            <MudCardContent>
+                <MudGrid Justify="Justify.Center" Class="mb-2">
+                    <h3>Authentification</h3>
+                </MudGrid>
+                <DataAnnotationsValidator />
+                <MudTextField @bind-Value="user.Email" Label="Email" Variant="Variant.Outlined" Margin="Margin.Dense" For="(()=>user.Email)"></MudTextField>
+                <MudTextField @bind-Value="user.Passwordhash" Label="Mot de passe" Variant="Variant.Outlined" Margin="Margin.Dense" class="mt-4" InputType="InputType.Password" For="(()=>user.Passwordhash)"></MudTextField>
+                <MudGrid Justify="Justify.FlexEnd" Class="mt-1 pr-3 mb-1">
+                    <MudItem>
+                        @*<ValidationSummary  />*@
+                    </MudItem>
+                    <MudItem>
+                        <MudLink Href="#" Underline="Underline.Always">Mot de passe oublié</MudLink>
+                    </MudItem>
+
+                </MudGrid>
+
+            </MudCardContent>
+            <MudDivider />
+            <MudCardActions>
+                <MudGrid Justify="Justify.FlexEnd" Class="mt-2 mb-2 mr-1">
+                    <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Class="demo-form-button">Se connecter</MudButton>
+                </MudGrid>
+            </MudCardActions>
+        </MudCard>
+
+    </MudGrid>
+</EditForm>
+
+@code {
+    Utilisateur user = new();
+    public bool resteConnecterCheckBox { get; set; } = true;
+
+    protected override async void OnInitialized()
+    {
+        var EmailAdress = await localStorage.GetItemAsync<string>("emailAddress");
+        if (EmailAdress != null)
+        {
+            NavigationManager.NavigateTo("/");
+        }
+        else
+        {
+            //editContext = new EditContext(utilisateur);
+        }
+    }
+
+    private async Task OnValidSubmit(EditContext context)
+    {
+        Utilisateur? utilisateur = new();
+        if (user.Passwordhash != null && !string.IsNullOrEmpty(user.Email))
+            utilisateur = await LogCtrl.VerificationUtilisateur(user.Email, user.Passwordhash);
+
+        if (utilisateur != null)
+        {
+            List<Urole> uroles = await LogCtrl.GetRoleUserAuthentified(utilisateur);
+            List<string> roles = new();
+            foreach (var item in uroles)
+            {
+                if (item.Rolename != null)
+                    roles.Add(item.Rolename.Trim());
+            }
+            await localStorage.SetItemAsync("emailAddress", utilisateur.Email);
+            await localStorage.SetItemAsync("loginNom", utilisateur.Nom);
+            await localStorage.SetItemAsync("loginPrenom", utilisateur.Prenom);
+            await localStorage.SetItemAsync("roles", roles);
+
+            ((CustomAuthenticationStateProvider)AuthenticationStateProvider).MarkUserAsAuthenticated(utilisateur, roles);
+
+            NavigationManager.NavigateTo("/");
+        }
+        else
+        {
+            Snackbar.Configuration.SnackbarVariant = Variant.Outlined;
+            Snackbar.Add("Email ou mot de passe incorrect.", Severity.Error);
+        }
+    }
+
+}

@@ -1,0 +1,129 @@
+is_global = true
+build_property.TargetFramework = net6.0
+build_property.TargetPlatformMinVersion = 
+build_property.UsingMicrosoftNETSdkWeb = true
+build_property.ProjectTypeGuids = 
+build_property.InvariantGlobalization = 
+build_property.PlatformNeutralAssembly = 
+build_property.EnforceExtendedAnalyzerRules = 
+build_property._SupportedPlatformList = Linux,macOS,Windows
+build_property.RootNamespace = OSIET_Finance
+build_property.RootNamespace = OSIET_Finance
+build_property.ProjectDir = C:\Users\Flex\source\repos\OSIET_Finance\
+build_property.RazorLangVersion = 6.0
+build_property.SupportLocalizedComponentNames = 
+build_property.GenerateRazorMetadataSourceChecksumAttributes = 
+build_property.MSBuildProjectDirectory = C:\Users\Flex\source\repos\OSIET_Finance
+build_property._RazorSourceGeneratorDebug = 
+
+[C:/Users/Flex/source/repos/OSIET_Finance/App.razor]
+build_metadata.AdditionalFiles.TargetPath = QXBwLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Flex/source/repos/OSIET_Finance/Pages/Autorisations/Authentification.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQXV0b3Jpc2F0aW9uc1xBdXRoZW50aWZpY2F0aW9uLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Flex/source/repos/OSIET_Finance/Pages/Finance/_DialogEditJournal.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcRmluYW5jZVxfRGlhbG9nRWRpdEpvdXJuYWwucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Flex/source/repos/OSIET_Finance/Pages/Finance/_DialogMontantInsuffisant.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcRmluYW5jZVxfRGlhbG9nTW9udGFudEluc3VmZmlzYW50LnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Flex/source/repos/OSIET_Finance/Pages/Finance/_DialogSuppressionJournal.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcRmluYW5jZVxfRGlhbG9nU3VwcHJlc3Npb25Kb3VybmFsLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Flex/source/repos/OSIET_Finance/Pages/Finance/_Journal.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcRmluYW5jZVxfSm91cm5hbC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Flex/source/repos/OSIET_Finance/Pages/Finance/_Rapport.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcRmluYW5jZVxfUmFwcG9ydC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Flex/source/repos/OSIET_Finance/Pages/Index.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcSW5kZXgucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Flex/source/repos/OSIET_Finance/Pages/OptionAvancees/_Compte.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcT3B0aW9uQXZhbmNlZXNcX0NvbXB0ZS5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Flex/source/repos/OSIET_Finance/Pages/OptionAvancees/_DialogDeleteImputation.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcT3B0aW9uQXZhbmNlZXNcX0RpYWxvZ0RlbGV0ZUltcHV0YXRpb24ucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Flex/source/repos/OSIET_Finance/Pages/OptionAvancees/_DialogEditImputation.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcT3B0aW9uQXZhbmNlZXNcX0RpYWxvZ0VkaXRJbXB1dGF0aW9uLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Flex/source/repos/OSIET_Finance/Pages/OptionAvancees/_Imputation.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcT3B0aW9uQXZhbmNlZXNcX0ltcHV0YXRpb24ucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Flex/source/repos/OSIET_Finance/Pages/OptionAvancees/_OptionAvancess.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcT3B0aW9uQXZhbmNlZXNcX09wdGlvbkF2YW5jZXNzLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Flex/source/repos/OSIET_Finance/Pages/OptionAvancees/_Solde.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcT3B0aW9uQXZhbmNlZXNcX1NvbGRlLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Flex/source/repos/OSIET_Finance/Shared/Autorisation/AuthentificationLayout.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXEF1dG9yaXNhdGlvblxBdXRoZW50aWZpY2F0aW9uTGF5b3V0LnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Flex/source/repos/OSIET_Finance/Shared/Autorisation/AutorisationNavMenu.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXEF1dG9yaXNhdGlvblxBdXRvcmlzYXRpb25OYXZNZW51LnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Flex/source/repos/OSIET_Finance/Shared/Autorisation/Redirection.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXEF1dG9yaXNhdGlvblxSZWRpcmVjdGlvbi5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Flex/source/repos/OSIET_Finance/Shared/ExampleChart/BarChart.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXEV4YW1wbGVDaGFydFxCYXJDaGFydC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Flex/source/repos/OSIET_Finance/Shared/ExampleChart/Donutchart.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXEV4YW1wbGVDaGFydFxEb251dGNoYXJ0LnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Flex/source/repos/OSIET_Finance/Shared/ExampleChart/LineChart.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXEV4YW1wbGVDaGFydFxMaW5lQ2hhcnQucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Flex/source/repos/OSIET_Finance/Shared/ExampleChart/PieChart.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXEV4YW1wbGVDaGFydFxQaWVDaGFydC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Flex/source/repos/OSIET_Finance/Shared/LogoutMenu.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXExvZ291dE1lbnUucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Flex/source/repos/OSIET_Finance/Shared/MainLayout.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXE1haW5MYXlvdXQucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Flex/source/repos/OSIET_Finance/Shared/NavMenu.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXE5hdk1lbnUucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Flex/source/repos/OSIET_Finance/_Imports.razor]
+build_metadata.AdditionalFiles.TargetPath = X0ltcG9ydHMucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Flex/source/repos/OSIET_Finance/Pages/Error.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcRXJyb3IuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Flex/source/repos/OSIET_Finance/Pages/_Host.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcX0hvc3QuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Flex/source/repos/OSIET_Finance/Pages/_Layout.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcX0xheW91dC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 

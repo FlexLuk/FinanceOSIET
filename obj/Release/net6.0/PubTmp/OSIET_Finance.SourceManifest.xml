@@ -1,0 +1,6 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<sitemanifest>
+  <IisApp path="C:\Users\Flex\source\repos\OSIET_Finance\obj\Release\net6.0\PubTmp\Out\" />
+  <dbfullsql path="C:\Users\Flex\source\repos\OSIET_Finance\obj\Release\net6.0\PubTmp\EFSQLScripts\OSIET_Finance.Models.Administration.UTILISATEURContext.sql" />
+  <dbfullsql path="C:\Users\Flex\source\repos\OSIET_Finance\obj\Release\net6.0\PubTmp\EFSQLScripts\OSIET_Finance.Models.Finance.FINANCEContext.sql" />
+</sitemanifest>

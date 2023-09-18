@@ -1,0 +1,13 @@
+﻿<MudNavMenu>
+    <MudNavLink Href="" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Home">Tableau de bord</MudNavLink>
+    <MudNavGroup Title="Journal" Icon="@Icons.Material.Filled.PeopleAlt" Expanded="true">
+        <MudNavLink Icon="@Icons.Material.Filled.ViewList" IconColor="Color.Success" Href="/journal/enregistrement">Journal</MudNavLink>
+        <MudNavLink Icon="@Icons.Material.Filled.Assignment" IconColor="Color.Primary" Href="/journal/rapport">Rapport</MudNavLink>
+    </MudNavGroup>
+    <AuthorizeView Roles="Gestionnaire, Admin">
+        <Authorized>
+            <MudNavLink Href="/option_avancees" Icon="@Icons.Material.Filled.Settings">Option avancées</MudNavLink>
+        </Authorized>
+    </AuthorizeView>
+    
+</MudNavMenu>

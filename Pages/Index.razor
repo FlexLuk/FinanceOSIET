@@ -1,0 +1,124 @@
+﻿@page "/"
+@using System.Net.Http.Json
+@using OSIET_Finance.Controller.OptionAvancees
+@using OSIET_Finance.Models.Finance
+@using System.Globalization
+@inject ISnackbar Snackbar
+@inject IOptionAvancees optionService
+
+<MudContainer Class="mt-4">
+    <MudGrid>
+        @if (soldiums != null)
+        {
+            foreach (var item in soldiums)
+            {
+                <MudItem xs="6" sm="3">
+                    <MudPaper Class="d-flex align-center justify-center mud-width-full py-8" Elevation="10">
+                        @if (item.NomCompte == "B.N.I" || item.NomCompte == "BNI" || item.NomCompte == "bni")
+                        {
+                            <MudImage Src="images/compte/bni.jpg" Alt="B.N.I" Class="rounded-lg mr-4" Width="64" />
+                        }
+                        else if (item.NomCompte == "B.O.A" || item.NomCompte == "BOA" || item.NomCompte == "boa")
+                        {
+                            <MudImage Src="images/compte/boa.jpg" Alt="B.O.A" Class="rounded-lg mr-4" Width="64" />
+                        }
+                        else if (item.NomCompte == "B.F.V" || item.NomCompte == "BFV" || item.NomCompte == "bfv")
+                        {
+                            <MudImage Src="images/compte/bfv.jpg" Alt="B.F.V" Class="rounded-lg mr-4" Width="64" />
+                        }
+                        else if (item.NomCompte == "CAISSE" || item.NomCompte == "caisse")
+                        {
+                            <MudImage Src="images/compte/caisse.png" Alt="CAISSE" Class="rounded-lg mr-4" Width="64" />
+                        }else{
+                            <h3 class="rounded-lg mr-4" Width="64">@item.NomCompte</h3>
+                        }
+                        @*<MudImage Src="images/compte/bni.jpg" Alt="B.N.I" Class="rounded-lg mr-4" Width="64" />*@
+                        <div>
+                            <h6 class="mud-typography mud-typography-subtitle1 mud-inherit-text mud-text-secondary mb-n1 ml-4">Solde disponible</h6>
+                            <h5 class="mud-typography mud-typography-h5 mud-inherit-text">
+                                <MudChip Size="Size.Large" Color="Color.Dark">
+                                    @item.Montant.Value.ToString("N2", CultureInfo.CreateSpecificCulture("fr-FR")) Ar
+                                </MudChip>
+                            </h5>
+                        </div>
+                        <hr />
+                    </MudPaper>
+                </MudItem>
+            }
+        }
+    </MudGrid>
+    <MudDivider Class="mt-4" />
+    <MudGrid Justify="Justify.Center">
+        @*<OSIET_Finance.Shared.ExampleChart.BarChart/>*@
+    </MudGrid>
+</MudContainer>
+
+@code {
+    public Position Position { get; set; } = Position.Left;
+
+    private void OnSelectedValue(Position value)
+    {
+        switch (value)
+        {
+            case Position.Top:
+                Position = Position.Top;
+                break;
+            case Position.Start:
+                Position = Position.Start;
+                break;
+            case Position.Left:
+                Position = Position.Left;
+                break;
+            case Position.Right:
+                Position = Position.Right;
+                break;
+            case Position.End:
+                Position = Position.End;
+                break;
+            case Position.Bottom:
+                Position = Position.Bottom;
+                break;
+        }
+    }
+    bool found;
+    private bool isVisible;
+    private IEnumerable<Compte>? comptes = new List<Compte>();
+    private IEnumerable<Solde>? soldes = new List<Solde>();
+    private List<Soldium>? soldiums = new List<Soldium>();
+    Soldium soldium = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+
+        isVisible = true;
+        await LoadTableSolde();
+        isVisible = false;
+    }
+
+    private async Task LoadTableSolde()
+    {
+        comptes = await optionService.GetAllComptesAsync();
+        soldes = await optionService.GetSoldesLastAsync();
+        if (soldes != null && soldes.Count() > 0)
+        {
+            foreach (var item in soldes)
+            {
+                soldium.SoldeId = item.SoldeId;
+                soldium.Date = item.Date.Value;
+                soldium.CompteId = item.CompteId;
+                soldium.Montant = item.Montant;
+                foreach (var x in comptes)
+                {
+                    if (x.CompteId == item.CompteId)
+                    {
+                        soldium.NomCompte = x.NomCompte;
+                        break;
+                    }
+                }
+                soldiums.Add(soldium);
+                soldium = new();
+            }
+        }
+        StateHasChanged();
+    }
+}

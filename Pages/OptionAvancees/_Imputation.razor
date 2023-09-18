@@ -1,0 +1,244 @@
+﻿@using OSIET_Finance.Controller.OptionAvancees
+@using OSIET_Finance.Models.Finance
+@inject ISnackbar Snackbar
+@inject IOptionAvancees optionService
+@inject IDialogService Dialog
+
+<style>
+    .selected {
+        background-color: dimgrey !important;
+    }
+
+        .selected > td {
+            color: white !important;
+        }
+
+            .selected > td .mud-input {
+                color: white !important;
+            }
+
+    .mud-table-row .selected {
+        background-color: dimgrey !important;
+    }
+
+    .my-custom-class {
+        backdrop-filter: blur(10px);
+    }
+
+    .large {
+        width: 1px
+    }
+</style>
+
+<MudPaper>
+    <div style="background-color: cornflowerblue">
+        <h3 class="py-2 ml-2">
+            <MudIcon Class="mr-2" style="float: left" Icon="@Icons.Material.Filled.AddCircle"></MudIcon>
+            <span>Ajout imputation</span>
+        </h3>
+    </div>
+
+    <MudDivider />
+    <MudContainer>
+        <MudForm @ref="form" @bind-IsValid="success">
+            <MudGrid>
+                <MudItem xs="4" sm="4">
+                    <MudTextField Label="Nom imputation" Variant="Variant.Outlined" Margin="Margin.Dense" @bind-Value=@imputation.Nom Required="true" RequiredError="Nom de l'imputation obligatoire"></MudTextField>
+                </MudItem>
+                <MudItem xs="4" sm="4">
+                    <MudTextField @ref=@numResetTextField Clearable Mask="mask1" T="int" Label="Numéro imputation" Variant="Variant.Outlined" Margin="Margin.Dense" @bind-Value=@imputation.NumeroCompte Required="true" RequiredError="Numéro de compte obligatoire"></MudTextField>
+                </MudItem>
+                <MudItem xs="4" sm="4">
+                    <MudSelect @ref=@TypeResetSelect Clearable T="string" ValueChanged="OnValueChanged" Label="Type d'imputation" AnchorOrigin="Origin.BottomCenter" Variant="Variant.Outlined" Margin="Margin.Dense" Required="true" RequiredError="Ceci est aussi obligatoire">
+                        <MudSelectItem Value="@("Entrée")" />
+                        <MudSelectItem Value="@("Sortie")" />
+                    </MudSelect>
+                </MudItem>
+            </MudGrid>
+        </MudForm>
+        <div style="float: right; margin-top: 15px; margin-bottom:15px">
+            <MudButton StartIcon="@Icons.Material.Filled.Cancel" Class="mr-3" Color="Color.Secondary" Variant="Variant.Filled" OnClick="Annuler">Annuler</MudButton>
+            <MudButton StartIcon="@Icons.Material.Filled.Save" Color="Color.Success" Variant="Variant.Filled" OnClick="AddImputation">Enregistrer</MudButton>
+        </div>
+
+    </MudContainer>
+    <MudDivider Class="mt-4" />
+    <div style="background-color: cornflowerblue">
+        <h3 class="py-2 ml-2">
+            <MudIcon Class="mr-2" style="float: left" Icon="@Icons.Material.Filled.ViewList"></MudIcon>
+            <span>Liste des imputations</span>
+        </h3>
+    </div>
+
+    <MudDivider />
+    <MudContainer Class="py-4">
+        <MudTable Items="@imputations" Dense="true" Hover="true" T="Imputation" FixedHeader="true" FixedFooter="true" HorizontalScrollbar="true" Height="250px"
+                  Filter="new Func<Imputation,bool>(FilterFunc1)" @bind-SelectedItem="selectedItem1" Breakpoint="Breakpoint.Sm" Bordered=true
+                  @ref="tableImputation" Striped>
+            <ToolBarContent>
+                <MudSpacer />
+                <MudSpacer />
+                <MudSpacer />
+                <MudSpacer />
+                <MudTextField Clearable @bind-Value="searchString1" Variant="Variant.Outlined" Margin="Margin.Dense" Placeholder="Recherche" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+            </ToolBarContent>
+            <HeaderContent>
+                <MudTh>Imputation</MudTh>
+                <MudTh>Numéro</MudTh>
+                <MudTh>Type</MudTh>
+                <MudTh Style="width:65px"></MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd DataLabel="Imputation">@context.Nom</MudTd>
+                <MudTd DataLabel="Numero">@context.NumeroCompte</MudTd>
+                <MudTd DataLabel="Type">@context.Type</MudTd>
+                <MudTd>
+                    <MudIconButton Icon="@Icons.Material.Filled.Edit" OnClick="(()=>EditImputation(context))" Color="Color.Success" Variant="Variant.Outlined"></MudIconButton>
+                </MudTd>
+            </RowTemplate>
+            <PagerContent>
+                <MudTablePager />
+            </PagerContent>
+        </MudTable>
+
+    </MudContainer>
+
+</MudPaper>
+@code {
+    Imputation imputation = new();
+    private IEnumerable<Imputation>? imputations = new List<Imputation>();
+    private int selectedRowNumber = -1;
+    private List<string> clickedEvents = new();
+    private string searchString1 = null!;
+    private Imputation selectedItem1 = null!;
+    MudTable<Imputation>? tableImputation;
+    MudSelect<string>? TypeResetSelect;
+    MudTextField<int>? numResetTextField;
+    private HashSet<Imputation> selectedItems = new HashSet<Imputation>();
+    MudForm? form;
+    bool success = false;
+    public IMask mask1 = new RegexMask(@"^\d+$");
+    private bool isVisible;
+    DialogOptions maxWidth = new DialogOptions() { MaxWidth = MaxWidth.Medium, FullWidth = false, CloseButton = true, DisableBackdropClick = true, ClassBackground = "my-custom-class" };
+
+    private void OnValueChanged(string _type)
+    {
+        imputation.Type = _type;
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        isVisible = true;
+        await LoadTableImputation();
+        isVisible = true;
+    }
+
+    private bool FilterFunc1(Imputation element) => FilterFunc(element, searchString1);
+    private bool FilterFunc(Imputation element, string searchString)
+    {
+        if (string.IsNullOrWhiteSpace(searchString))
+            return true;
+        if (element.Nom.ToString().Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        if (element.NumeroCompte.ToString().Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        if (element.Type.ToString().Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        return false;
+    }
+
+    private async Task LoadTableImputation()
+    {
+        imputations = await optionService.GetAllImputationsAsync();
+        StateHasChanged();
+    }
+
+    private void Annuler()
+    {
+        imputation.Nom = "";
+        imputation.Type = "";
+        TypeResetSelect.Clear();
+        numResetTextField.Clear();
+        form.ResetValidation();
+        StateHasChanged();
+    }
+
+    private async void AddImputation()
+    {
+        form.Validate();
+        if (imputation.NumeroCompte <= 0)
+            success = false;
+        if (success)
+        {
+            bool result = await optionService.CreateImputationAsync(imputation);
+            if (result)
+            {
+                Snackbar.Add("Enregistrement réussi.", Severity.Success);
+                await LoadTableImputation();
+                imputation = new();
+            }
+            else
+            {
+                Snackbar.Add("Erreur d'enregistrement, contacter l'administrateur.", Severity.Error);
+            }
+        }
+        else
+        {
+            Snackbar.Add("Veuillez compléter tous les champs", Severity.Warning);
+        }
+    }
+
+
+    private async void EditImputation(Imputation _imputation)
+    {
+        var parameters = new DialogParameters();
+        parameters.Add("imputation", _imputation);
+        var dialogUser = Dialog.Show<_DialogEditImputation>("Modification imputation", parameters, maxWidth);
+        var resultDialogUser = await dialogUser.Result;
+        if (!resultDialogUser.Canceled)
+        {
+            if ((bool)resultDialogUser.Data)
+            {
+                Snackbar.Add("Modification réussi.", Severity.Success);
+                await LoadTableImputation();
+            }
+            else
+            {
+                Snackbar.Add("Erreur de modification, contacter l'administrateur.", Severity.Error);
+                await LoadTableImputation();
+            }
+        }
+    }
+
+    private async void EffacerImputation(Imputation _imputation)
+    {
+        var parameters = new DialogParameters();
+        string message = "Voulez-vous vraiment effacer l’imputation suivant : " +
+        "\r\n Imputation : " + _imputation.Nom +
+        "\r\n #  : " + _imputation.NumeroCompte + " ?";
+        message.Replace("@", "@" + Environment.NewLine).Trim();
+
+        parameters.Add("ContentText", message);
+        parameters.Add("ButtonText", "Supprimer");
+        parameters.Add("Color", Color.Error);
+
+        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall };
+
+        var dialogUser = Dialog.Show<_DialogDeleteImputation>("Suppression", parameters, options);
+        var resultDialogUser = await dialogUser.Result;
+        if (!resultDialogUser.Canceled)
+        {
+            if ((bool)resultDialogUser.Data)
+            {
+                bool result = await optionService.SupprimerImputation(_imputation);
+                Snackbar.Add("Suppression réussi.", Severity.Success);
+                await LoadTableImputation();
+            }
+            else
+            {
+                Snackbar.Add("Erreur de Suppression, contacter l'administrateur.", Severity.Error);
+                await LoadTableImputation();
+            }
+        }
+    }
+}

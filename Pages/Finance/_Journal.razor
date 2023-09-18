@@ -1,0 +1,608 @@
+﻿@page "/journal/enregistrement"
+@using OSIET_Finance.Controller.OptionAvancees
+@using OSIET_Finance.Controller.Finance
+@using OSIET_Finance.Models.Finance
+@using System.Globalization
+@using System.IO
+@using System.Net
+@inject ISnackbar Snackbar
+@inject IOptionAvancees optionService
+@inject IJournalService journalService
+@inject IDialogService Dialog
+@inject IJSRuntime JS
+@inject HttpClient Http
+@inject NavigationManager NavigationManager
+
+<MudContainer Class="mt-4">
+
+    <MudPaper>
+        <MudForm @ref="form" @bind-IsValid="success">
+            <MudDivider />
+            <div>
+                <h3 class="py-2 ml-2">
+                    <MudIcon Class="mr-2" style="float: left" Icon="@Icons.Material.Filled.SaveAlt"></MudIcon>
+                    <span>Enregistrement des journals</span>
+                </h3>
+            </div>
+            <MudDivider />
+            <MudContainer>
+                <MudGrid>
+                    <MudItem xs="12" sm="3">
+                        <MudSelect T="string" Variant="Variant.Outlined" ValueChanged="OnValueChangedType" Margin="Margin.Dense" Label="Type d'entrée" AnchorOrigin="Origin.BottomCenter" Required RequiredError="Obligatoire">
+                            <MudSelectItem Value="@("Entrée")" />
+                            <MudSelectItem Value="@("Sortie")" />
+                        </MudSelect>
+                    </MudItem>
+                    <MudItem xs="12" sm="3">
+                        <MudSelect T="Compte" Label="compte" ValueChanged="OnValueChangedCompte" AnchorOrigin="Origin.BottomCenter" Required RequiredError="Obligatoire" Variant="Variant.Outlined" Margin="Margin.Dense">
+                            @foreach (var item in comptes)
+                            {
+                                <MudSelectItem Value="@item">@item.NomCompte</MudSelectItem>
+                            }
+                        </MudSelect>
+                    </MudItem>
+                    <MudItem xs="12" sm="3">
+                        <MudTextField Clearable Immediate="true" @bind-Value=journal.Montant Format="N2" Culture="@_de" T="double" Label="Montant" Variant="Variant.Outlined" Margin="Margin.Dense" Required="true" RequiredError="Obligatoire"></MudTextField>
+                    </MudItem>
+                    <MudItem xs="12" sm="3">
+                        <MudDatePicker ShowWeekNumbers AllowKeyboardInput @bind-Date=journal.Date Editable @ref="_picker" Label="Date" AutoClose="@autoClose" Required Variant="Variant.Outlined" Margin="Margin.Dense">
+                            <PickerActions>
+                                <MudButton Class="mr-auto align-self-start" OnClick="@(() => _picker.Clear())">Clear</MudButton>
+                                <MudButton OnClick="@(() => _picker.Close(false))">Cancel</MudButton>
+                                <MudButton Color="Color.Primary" OnClick="@(() => _picker.Close())">Ok</MudButton>
+                            </PickerActions>
+                        </MudDatePicker>
+                    </MudItem>
+                </MudGrid>
+                <MudDivider Class="mt-2 mb-n2" />
+            </MudContainer>
+            <MudContainer Class="py-4 ">
+                <MudGrid Class="d-flex justify-center ">
+
+                    <MudItem xs="12" sm="3">
+                        <MudTextField Label="Payer par" @bind-Value=journal.PayerPar T="string" Required RequiredError="Obligatoire" Variant="Variant.Outlined" Margin="Margin.Dense"></MudTextField>
+                    </MudItem>
+                    <MudItem xs="12" sm="3">
+                        <MudSelect @ref="imput" T="Imputation" Clearable Label="Imputation" ValueChanged="OnValueChanged" AnchorOrigin="Origin.BottomCenter" Required RequiredError="Obligatoire" Variant="Variant.Outlined" Margin="Margin.Dense">
+                            @foreach (var item in imputations)
+                            {
+                                @if (journal.Type == item.Type)
+                                {
+                                    <MudSelectItem Value="@item">@item.Nom <span style="float:right">@item.NumeroCompte</span></MudSelectItem>
+                                }
+                                else if (journal.Type == item.Type)
+                                {
+                                    <MudSelectItem Value="@item">@item.Nom <span style="float:right">@item.NumeroCompte</span></MudSelectItem>
+                                }
+                            }
+                        </MudSelect>
+                    </MudItem>
+                    <MudItem xs="12" sm="3">
+                        <MudSelect Disabled=(!vInterne) T="Compte" Label="compte interne" ValueChanged="OnValueChangedCompteInterne" AnchorOrigin="Origin.BottomCenter" Variant="Variant.Outlined" Margin="Margin.Dense">
+                            @foreach (var item in comptes)
+                            {
+                                <MudSelectItem Value="@item">@item.NomCompte</MudSelectItem>
+                            }
+                        </MudSelect>
+                    </MudItem>
+                    <MudItem xs="12" sm="3">
+                        <MudTextField Label="Concernée" @bind-Value=journal.Concernee T="string" Required RequiredError="Obligatoire" Variant="Variant.Outlined" Margin="Margin.Dense"></MudTextField>
+                    </MudItem>
+                    <MudItem xs="12" sm="4">
+                        <MudTextField Label="Libelle" @bind-Value=journal.Libelle T="string" Required RequiredError="Obligatoire" Variant="Variant.Outlined" Margin="Margin.Dense"></MudTextField>
+                    </MudItem>
+                    <MudItem xs="12" sm="4">
+                        <MudTextField Label="Réf pièces" TextChanged="ActiveUpload"  T="string" Required RequiredError="Obligatoire" Variant="Variant.Outlined" Margin="Margin.Dense"></MudTextField>
+                    </MudItem>
+                    <MudItem xs="12" sm="4">
+                        <MudFileUpload T="IBrowserFile" FilesChanged="GetFilePiece" Disabled=!refer>
+                            <ButtonTemplate>
+                                <MudButton HtmlTag="label"
+                                           Variant="Variant.Outlined"
+                                           Color="Color.Primary"
+                                           Style="width:100%"
+                                           StartIcon="@Icons.Material.Filled.Download"
+                                           for="@context">
+                                    <p>@uploadText</p>
+                                </MudButton>
+                            </ButtonTemplate>
+                        </MudFileUpload>
+                    </MudItem>
+                </MudGrid>
+
+                <MudDivider Class="mt-2" />
+
+                <MudButton Class="mt-2 ml-2 mb-2" Style="float: right; width: 150px" OnClick="AddJournal" StartIcon="@Icons.Material.Filled.Save" Variant="Variant.Filled" Color="Color.Success">Enregistrer</MudButton>
+                <MudButton Class="mt-2" Style="float: right; width: 150px" StartIcon="@Icons.Material.Filled.Cancel" OnClick="Annuler" Variant="Variant.Filled" Color="Color.Secondary">Annuler</MudButton>
+            </MudContainer>
+        </MudForm>
+        <MudDivider />
+        <div>
+            <h3 class="py-2 ml-2">
+                <MudIcon Class="mr-2" style="float: left" Icon="@Icons.Material.Filled.ListAlt"></MudIcon>
+                <span>Liste des journals</span>
+            </h3>
+        </div>
+        <MudDivider />
+        <MudContainer Class="py-4">
+            <MudTable Items="@journalss" Dense="true" Hover="true" T="Journals" FixedHeader="true" FixedFooter="true" HorizontalScrollbar="true" Height="430px"
+                      Filter="new Func<Journals,bool>(FilterFunc1)" @bind-SelectedItem="selectedItem1" Breakpoint="Breakpoint.Sm" Bordered=true
+                      @ref="tableJournal" Striped>
+                <ToolBarContent>
+                    <MudSpacer />
+                    <MudSpacer />
+                    <MudSpacer />
+                    <MudSpacer />
+                    <MudTextField @bind-Value="searchString1" Placeholder="Recherche" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0" Variant="Variant.Outlined" Margin="Margin.Dense"></MudTextField>
+                </ToolBarContent>
+                <HeaderContent>
+                    @*<MudTh>ID</MudTh>*@
+                    <MudTh Style="width:135px">Date</MudTh>
+                    <MudTh Style="width:50px">Journal</MudTh>
+                    <MudTh>Payer par</MudTh>
+                    <MudTh>Compte</MudTh>
+                    <MudTh>Imputation</MudTh>
+                    <MudTh>Réf pièce</MudTh>
+                    <MudTh>Libelle</MudTh>
+                    <MudTh>Concernée</MudTh>
+                    <MudTh Style="width:130px">Montant</MudTh>
+                    <MudTh Style="width:100px"></MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    @*<MudTd DataLabel="ID">@context.SoldeId</MudTd>*@
+                    <MudTd DataLabel="Date">@context.Date.ToString("dd MMMM yyyy")</MudTd>
+                    <MudTd DataLabel="Type">
+                        @if (context.Type == "Entrée")
+                        {
+                            <MudChip Size="Size.Small" Icon="@Icons.Material.Filled.ArrowForwardIos" Color="Color.Success">@context.Type</MudChip>
+                        }
+                        else
+                        {
+                            <MudChip Size="Size.Small" Icon="@Icons.Material.Filled.ArrowBackIosNew" Color="Color.Warning">@context.Type</MudChip>
+                        }
+                    </MudTd>
+                    <MudTd DataLabel="Payer par">@context.PayerPar</MudTd>
+                    <MudTd DataLabel="Compte">@context.CompteNom</MudTd>
+                    <MudTd DataLabel="Imputation">@context.ImputationNom</MudTd>
+                    <MudTd DataLabel="Réf pièce">@context.RefPiece</MudTd>
+                    <MudTd DataLabel="Libelle">@context.Libelle</MudTd>
+                    <MudTd DataLabel="Concernée">@context.Concernee</MudTd>
+                    <MudTd DataLabel="Montant">@context.Montant.ToString("N0", CultureInfo.CreateSpecificCulture("fr-FR")) Ar</MudTd>
+                    <MudTd>
+                        @if (context.LocationFichier != null || context.LocationFichier != "")
+                        {
+                            <MudIconButton Class="py-1" Title="Voir pièce" Icon="@Icons.Material.Filled.DownloadForOffline" Size="Size.Small" OnClick="@(()=>DownloadFile(context.LocationFichier))" Color="Color.Primary" Variant="Variant.Outlined"></MudIconButton>
+                        }
+                        @*<MudIconButton OnClick="(()=>EditJournal(context))" Class="py-1" Title="Modification" Icon="@Icons.Material.Filled.Edit" Size="Size.Small" Color="Color.Success" Variant="Variant.Outlined"></MudIconButton>*@
+                    </MudTd>
+                </RowTemplate>
+                <PagerContent>
+                    <MudTablePager />
+                </PagerContent>
+            </MudTable>
+        </MudContainer>
+    </MudPaper>
+
+
+</MudContainer>
+
+@code {
+    MudDatePicker? _picker;
+    MudSelect<Imputation>? imput;
+    private bool autoClose = true;
+    private bool isVisible;
+    Journal journal = new();
+    Journal journalInterne = new();
+    Compte compte = new();
+    Compte compteInterne = new();
+    Solde? solde = new();
+    Imputation imputation = new();
+    string uploadText = "Pièce ajouter";
+    private IEnumerable<Imputation>? imputations = new List<Imputation>();
+    private IEnumerable<Compte>? comptes = new List<Compte>();
+    private List<Journal>? journals = new List<Journal>();
+    private List<Journals>? journalss = new List<Journals>();
+    IBrowserFile? file;
+    public IMask mask1 = new RegexMask(@"^\d+$");
+    public CultureInfo _de = CultureInfo.GetCultureInfo("de-DE");
+    MudForm? form;
+    bool success = false;
+    bool vInterne = false;
+    private string searchString1 = null!;
+    private Journals selectedItem1 = null!;
+    MudTable<Journals>? tableJournal;
+
+    protected override async Task OnInitializedAsync()
+    {
+        isVisible = true;
+        await LoadTableImputation();
+        await LoadTableCompte();
+        await LoadTableJournal();
+        isVisible = true;
+    }
+
+    private async Task LoadTableImputation()
+    {
+        imputations = await optionService.GetAllImputationsAsync();
+        StateHasChanged();
+    }
+
+    private void ActiveUpload(string _value)
+    {
+        journal.RefPiece = _value;
+        Console.WriteLine(">>>>>>>< " + journal.RefPiece);
+        if (_value == "")
+        {
+            refer = false;
+            journal.RefPiece = null;
+        }
+        else
+        {
+            refer = true;
+        }
+    }
+
+    private async Task LoadTableCompte()
+    {
+        comptes = await optionService.GetAllComptesAsync();
+        StateHasChanged();
+    }
+
+    private async Task LoadTableJournal()
+    {
+        journals = await journalService.GetAllJournals();
+        journalss = new List<Journals>();
+        foreach (var item in journals)
+        {
+            Journals j = new();
+            Compte? c = new();
+            Imputation? i = new();
+            c = await optionService.GetCompteByIdAsync(item.CompteId);
+            i = await optionService.GetImputationById(item.ImputationId);
+            j.Date = item.Date.Value;
+            j.CompteId = item.CompteId;
+            j.CompteNom = c.NomCompte;
+            j.Montant = item.Montant;
+            j.Type = item.Type;
+            j.PayerPar = item.PayerPar;
+            j.ImputationId = item.ImputationId;
+            j.ImputationNom = i.Nom;
+            j.Concernee = item.Concernee;
+            j.Libelle = item.Libelle;
+            j.RefPiece = item.RefPiece;
+            j.LocationFichier = item.LocationFichier;
+            journalss.Add(j);
+        }
+        StateHasChanged();
+    }
+
+    private void OnValueChanged(Imputation _imputation)
+    {
+        imputation = _imputation;
+        journal.ImputationId = imputation.ImputationId;
+        if (_imputation != null && (_imputation.Nom == "Virement interne" || _imputation.Nom == "virement interne"))
+            vInterne = true;
+        else vInterne = false;
+
+        StateHasChanged();
+    }
+
+    private void OnValueChangedType(string _type)
+    {
+        journal.Type = _type;
+        imput.Reset();
+        StateHasChanged();
+    }
+
+    private void OnValueChangedCompte(Compte _compte)
+    {
+        compte = _compte;
+        journal.CompteId = compte.CompteId;
+        StateHasChanged();
+    }
+
+    private void OnValueChangedCompteInterne(Compte _compte)
+    {
+        compteInterne = _compte;
+        journalInterne.CompteId = compteInterne.CompteId;
+
+        StateHasChanged();
+    }
+
+    private void GetFilePiece(IBrowserFile _file)
+    {
+
+        file = _file;
+        uploadText = file.Name;
+        journal.LocationFichier = journal.RefPiece + Path.GetExtension(uploadText);
+        StateHasChanged();
+    }
+
+    private bool FilterFunc1(Journals element) => FilterFunc(element, searchString1);
+    private bool FilterFunc(Journals element, string searchString)
+    {
+        if (string.IsNullOrWhiteSpace(searchString))
+            return true;
+        if (element.Date.ToString().Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        if (element.PayerPar.ToString().Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        if (element.CompteNom.ToString().Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        if (element.Concernee.ToString().Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        if (element.ImputationNom.ToString().Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        if (element.Libelle.ToString().Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        if (element.RefPiece.ToString().Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        if (element.Montant.ToString().Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        if (element.Type.ToString().Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        return false;
+    }
+
+    bool refer = false;
+
+    private void Annuler()
+    {
+        form.Reset();
+        refer = false;
+        form.ResetValidation();
+        uploadText = "Pièce ajouter";
+        compte = new();
+        solde = new();
+        journal = new();
+        imputation = new();
+        StateHasChanged();
+    }
+
+    protected async void AddJournal()
+    {
+        Thread.Sleep(10);
+        form.Validate();
+        if (success)
+        {
+            solde = await optionService.GetLastSoldeByCompte(compte.CompteId);
+            if (solde != null)
+            {
+                Journal? jj = new();
+                jj = await journalService.GetJournalByRef(journal.RefPiece);
+                double? avant = solde.Montant;
+                double? apres = 0;
+                if (journal.Type == "Entrée") { apres = solde.Montant + journal.Montant; }
+                else if (journal.Type == "Sortie") { apres = solde.Montant - journal.Montant; }
+                if (apres <= 0)
+                {
+                    var parameters = new DialogParameters();
+                    string message = "Le solde de ce compte est insuffisant.";
+
+                    parameters.Add("ContentText", message);
+                    parameters.Add("ButtonText", "Ok");
+                    parameters.Add("Color", Color.Warning);
+
+                    var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall };
+
+                    var dialogUser = Dialog.Show<_DialogMontantInsuffisant>("Attention !", parameters, options);
+                    var resultDialogUser = await dialogUser.Result;
+                }else if(jj != null){
+                    var parameters = new DialogParameters();
+                    string message = "Reference de pièce de même nom existe.";
+
+                    parameters.Add("ContentText", message);
+                    parameters.Add("ButtonText", "Ok");
+                    parameters.Add("Color", Color.Warning);
+
+                    var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall };
+
+                    var dialogUser = Dialog.Show<_DialogMontantInsuffisant>("Attention !", parameters, options);
+                    var resultDialogUser = await dialogUser.Result;
+                }
+                else if (file == null){
+                    var parameters = new DialogParameters();
+                    string message = "Piece jointe n'est pas encore inserer.";
+
+                    parameters.Add("ContentText", message);
+                    parameters.Add("ButtonText", "Ok");
+                    parameters.Add("Color", Color.Warning);
+
+                    var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall };
+
+                    var dialogUser = Dialog.Show<_DialogMontantInsuffisant>("Attention !", parameters, options);
+                    var resultDialogUser = await dialogUser.Result;
+                }else
+                {
+                    if (vInterne)
+                    {
+                        journal.IdSoldeAvant = solde.SoldeId;
+                        Solde solde_ = new();
+                        solde_.Date = DateTime.Now;
+                        solde_.CompteId = solde.CompteId;
+                        solde_.Montant = solde.Montant - journal.Montant;
+
+                        Solde _solde = await optionService.CreateSoldeReturnAsync(solde_);
+                        journal.IdSoldeApres = _solde.SoldeId;
+                        bool save = true;
+                        if (journal.LocationFichier != null || journal.LocationFichier != "")
+                            save = await SendFile(journal.LocationFichier);
+                        if (save)
+                        {
+                            bool result = await journalService.CreateJournal(journal);
+                            if (result)
+                            {
+                                Solde __solde = await optionService.GetLastSoldeByCompte(compteInterne.CompteId);
+                                journalInterne.IdSoldeAvant = __solde.SoldeId;
+                                Solde solde__ = new();
+                                solde__.Date = DateTime.Now;
+                                solde__.CompteId = __solde.CompteId;
+                                solde__.Montant = __solde.Montant + journal.Montant;
+                                Solde _solde_ = await optionService.CreateSoldeReturnAsync(solde__);
+
+                                journalInterne.IdSoldeAvant = __solde.SoldeId;
+                                journalInterne.IdSoldeApres = _solde_.SoldeId;
+                                journalInterne.Type = "Entrée";
+                                journalInterne.CompteId = compteInterne.CompteId;
+                                journalInterne.Montant = journal.Montant;
+                                journalInterne.Date = journal.Date;
+                                journalInterne.PayerPar = journal.PayerPar;
+                                journalInterne.ImputationId = journal.ImputationId;
+                                journalInterne.Concernee = journal.Concernee;
+                                journalInterne.Libelle = journal.Libelle;
+                                journalInterne.RefPiece = journal.RefPiece;
+                                journalInterne.LocationFichier = journal.LocationFichier;
+
+                                bool result_ = await journalService.CreateJournal(journalInterne);
+                                if (result_)
+                                {
+                                    Snackbar.Add("Enregistrement réussi.", Severity.Success);
+                                    //await LoadTableImputation();
+                                    journal = new();
+                                    compte = new();
+                                    solde = new();
+                                    imputation = new();
+                                    journal.Date = DateTime.Now;
+                                }
+                                else
+                                {
+                                    Snackbar.Add("Erreur d'enregistrement, contacter l'administrateur.", Severity.Error);
+                                }
+                                Annuler();
+                                await LoadTableJournal();
+                            }
+                            else
+                            {
+                                Snackbar.Add("Erreur d'enregistrement, contacter l'administrateur.", Severity.Error);
+                            }
+                            Annuler();
+                            await LoadTableJournal();
+                        }
+                        else
+                        {
+                            Snackbar.Add("Erreur upload file, enregistrement annuler..", Severity.Error);
+                            Annuler();
+                        }
+                    }
+                    else
+                    {
+                        journal.IdSoldeAvant = solde.SoldeId;
+                        Solde solde_ = new();
+                        solde_.Date = DateTime.Now;
+                        solde_.CompteId = solde.CompteId;
+                        solde_.Montant = apres;
+
+                        Solde _solde = await optionService.CreateSoldeReturnAsync(solde_);
+                        journal.IdSoldeApres = _solde.SoldeId;
+                        bool save = true;
+                        if (journal.LocationFichier != null || journal.LocationFichier != "")
+                            save = await SendFile(journal.LocationFichier);
+                        if (save)
+                        {
+                            bool result = await journalService.CreateJournal(journal);
+                            if (result)
+                            {
+                                Snackbar.Add("Enregistrement réussi.", Severity.Success);
+                                //await LoadTableImputation();
+                                journal = new();
+                                compte = new();
+                                solde = new();
+                                imputation = new();
+                                journal.Date = DateTime.Now;
+                            }
+                            else
+                            {
+                                Snackbar.Add("Erreur d'enregistrement, contacter l'administrateur.", Severity.Error);
+                                uploadText = "Pièce ajouter";
+                                compte = new();
+                                solde = new();
+                                journal = new();
+                                imputation = new();
+                            }
+                            await LoadTableJournal();
+                        }
+                        else
+                        {
+                            Snackbar.Add("Erreur upload file, enregistrement annuler..", Severity.Error);
+                        }
+                    }
+
+                }
+            }
+            else
+            {
+                Snackbar.Add("Le solde du compte " + compte.NomCompte + " est vide.", Severity.Error);
+            }
+        }
+        else
+        {
+            Snackbar.Add("Veuillez compléter tous les champs", Severity.Warning);
+        }
+    }
+
+    private async Task<bool> SendFile(string fileName)
+    {
+        var path = Path.Combine(Environment.CurrentDirectory, "wwwroot"
+                    , "Pieces",
+                    fileName);
+
+        await using FileStream fs = new(path, FileMode.CreateNew);
+        await file.OpenReadStream(50438910).CopyToAsync(fs);
+        return true;
+    }
+
+    private async Task DownloadFile(string fileName)
+    {
+        var fileURL = NavigationManager.BaseUri + $"api/File/DownloadFile/{fileName}";
+        Console.WriteLine(">" + fileURL);
+        await JS.InvokeVoidAsync("triggerFileDownload", fileName, fileURL);
+    }
+
+    private async void EditJournal(Journals _journal)
+    {
+        if (_journal != null)
+        {
+            Journal _journal_ = new();
+            _journal_.JournalId = _journal.JournalId;
+            _journal_.Date = _journal.Date;
+            _journal_.PayerPar = _journal.PayerPar;
+            _journal_.ImputationId = _journal.ImputationId;
+            _journal_.RefPiece = _journal.RefPiece;
+            _journal_.LocationFichier = _journal.LocationFichier;
+            _journal_.Concernee = _journal.Concernee;
+            _journal_.CompteId = _journal.CompteId;
+            _journal_.Libelle = _journal.Libelle;
+            _journal_.RefPiece = _journal.RefPiece;
+            _journal_.IdSoldeAvant = _journal.IdSoldeAvant;
+            _journal_.IdSoldeApres = _journal.IdSoldeApres;
+            _journal_.Montant = _journal.Montant;
+            _journal_.Type = _journal.Type;
+            DialogOptions options = new DialogOptions() { MaxWidth = MaxWidth.Large, FullWidth = true, CloseButton = true, DisableBackdropClick = true };
+            var parameters = new DialogParameters();
+            parameters.Add("journal", _journal_);
+            var dialogUser = Dialog.Show<_DialogEditJournal>("Modification utilisateur", parameters, options);
+            var resultDialogUser = await dialogUser.Result;
+            if (!resultDialogUser.Cancelled)
+            {
+                if ((bool)resultDialogUser.Data)
+                {
+                    Snackbar.Add("Modification réussi.", Severity.Success);
+                    await LoadTableJournal();
+                    StateHasChanged();
+                }
+                else
+                {
+                    Snackbar.Add("Erreur d'enregistrement.", Severity.Error);
+                    await LoadTableJournal();
+                    StateHasChanged();
+                }
+                selectedItem1 = null;
+            }
+        }
+        else
+        {
+            Snackbar.Add("Veuillez sélectionner un élément.", Severity.Warning);
+        }
+    }
+
+}

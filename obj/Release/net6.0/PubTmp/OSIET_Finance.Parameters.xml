@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<parameters>
+  <parameter name="IIS Web Application Name" description="" value="finance" tags="IisApp">
+    <parameterEntry kind="ProviderPath" scope="IisApp" match="^C:\\Users\\Flex\\source\\repos\\OSIET_Finance\\obj\\Release\\net6\.0\\PubTmp\\Out\\$" />
+  </parameter>
+  <parameter name="OSIET_Finance.Models.Administration.UTILISATEURContext" description="" value="Data Source=localhost;Initial Catalog=OSIET;Integrated Security=True;Trusted_Connection=True;MultipleActiveResultSets=true; encrypt=false" tags="dbfullsql">
+    <parameterEntry kind="ProviderPath" scope="dbfullsql" match="^C:\\Users\\Flex\\source\\repos\\OSIET_Finance\\obj\\Release\\net6\.0\\PubTmp\\EFSQLScripts\\OSIET_Finance\.Models\.Administration\.UTILISATEURContext\.sql$" />
+  </parameter>
+  <parameter name="OSIET_Finance.Models.Finance.FINANCEContext" description="" value="Data Source=localhost;Initial Catalog=OSIET;Integrated Security=True;Trusted_Connection=True;MultipleActiveResultSets=true; encrypt=false" tags="dbfullsql">
+    <parameterEntry kind="ProviderPath" scope="dbfullsql" match="^C:\\Users\\Flex\\source\\repos\\OSIET_Finance\\obj\\Release\\net6\.0\\PubTmp\\EFSQLScripts\\OSIET_Finance\.Models\.Finance\.FINANCEContext\.sql$" />
+  </parameter>
+</parameters>

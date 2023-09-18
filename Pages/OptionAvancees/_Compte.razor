@@ -1,0 +1,180 @@
+﻿@using OSIET_Finance.Controller.OptionAvancees
+@using OSIET_Finance.Models.Finance
+@using System.Globalization
+@inject ISnackbar Snackbar
+@inject IOptionAvancees optionService
+<style>
+    .selected {
+        background-color: dimgrey !important;
+    }
+
+        .selected > td {
+            color: white !important;
+        }
+
+            .selected > td .mud-input {
+                color: white !important;
+            }
+
+    .mud-table-row .selected {
+        background-color: dimgrey !important;
+    }
+
+    .my-custom-class {
+        backdrop-filter: blur(10px);
+    }
+
+    .large {
+        width: 1px
+    }
+</style>
+@if (isVisible)
+{
+    <MudContainer Style="width:100%; height: 100%" Class="py-8">
+        <MudText>Chargement...</MudText>
+        <MudProgressLinear Color="Color.Primary" Indeterminate="true" Class="" />
+    </MudContainer>
+}
+else
+{
+    <MudPaper>
+        <div style="background-color: cadetblue">
+            <h3 class="py-2 ml-2">
+                <MudIcon Class="mr-2" style="float: left" Icon="@Icons.Material.Filled.AddCircle"></MudIcon>
+                <span>Ajout de compte</span>
+            </h3>
+        </div>
+
+        <MudDivider />
+        <MudContainer>
+            <MudForm @ref="form" @bind-IsValid="success">
+                <MudGrid>
+                    <MudItem xs="6" sm="6">
+                        <MudTextField Label="Nom du compte" Variant="Variant.Outlined" Margin="Margin.Dense" @bind-Value=@compte.NomCompte Required="true" RequiredError="Nom de compte obligatoire"></MudTextField>
+                    </MudItem>
+                    <MudItem xs="6" sm="6">
+                        <MudTextField Mask="mask1" Variant="Variant.Outlined" Margin="Margin.Dense" Label="Numéro du compte" @bind-Value=@compte.NumCompte Required="true" RequiredError="Numéro de compte obligatoire"></MudTextField>
+                    </MudItem>
+                </MudGrid>
+            </MudForm>
+            <div style="float: right; margin-top: 15px; margin-bottom:15px">
+                <MudButton StartIcon="@Icons.Material.Filled.Cancel" Class="mr-3" Color="Color.Secondary" Variant="Variant.Filled" OnClick="Annuler">Annuler</MudButton>
+                <MudButton StartIcon="@Icons.Material.Filled.Save" Color="Color.Success" Variant="Variant.Filled" OnClick="AddCompte">Enregistrer</MudButton>
+            </div>
+
+        </MudContainer>
+        <MudDivider Class="mt-4" />
+        <div style="background-color: cadetblue">
+            <h3 class="py-2 ml-2">
+                <MudIcon Class="mr-2" style="float: left" Icon="@Icons.Material.Filled.ViewList"></MudIcon>
+                <span>Liste de compte</span>
+            </h3>
+        </div>
+
+        <MudDivider />
+        <MudContainer Class="py-4">
+            <MudTable Items="@comptes" Dense="true" Hover="true" T="Compte" FixedHeader="true" FixedFooter="true" HorizontalScrollbar="true" Height="200px"
+                  Filter="new Func<Compte,bool>(FilterFunc1)" @bind-SelectedItem="selectedItem1" Breakpoint="Breakpoint.Sm" Bordered=true
+                  @ref="tableCompte" Striped>
+                <ToolBarContent>
+                    <MudSpacer />
+                    <MudSpacer />
+                    <MudSpacer />
+                    <MudSpacer />
+                    <MudTextField Clearable @bind-Value="searchString1" Placeholder="Recherche" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0" Variant="Variant.Outlined" Margin="Margin.Dense"></MudTextField>
+                </ToolBarContent>
+                <HeaderContent>
+                    <MudTh>Nom Compte</MudTh>
+                    <MudTh>N° Compte</MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd DataLabel="Nom compte">@context.NomCompte</MudTd>
+                    <MudTd DataLabel="N° Compte">@context.NumCompte</MudTd>
+                </RowTemplate>
+                <PagerContent>
+                    <MudTablePager />
+                </PagerContent>
+
+            </MudTable>
+
+        </MudContainer>
+
+    </MudPaper>
+}
+
+
+@code {
+    string nom, num;
+    Compte compte = new();
+    private IEnumerable<Compte>? comptes = new List<Compte>();
+    private int selectedRowNumber = -1;
+    private List<string> clickedEvents = new();
+    private string searchString1 = null!;
+    private Compte selectedItem1 = null!;
+    MudTable<Compte>? tableCompte;
+    private HashSet<Compte> selectedItems = new HashSet<Compte>();
+    MudForm? form;
+    bool success = false;
+    IMask mask1 = new RegexMask(@"^\d+$");
+
+    private bool isVisible;
+
+    protected override async Task OnInitializedAsync()
+    {
+        isVisible = true;
+        await LoadTableCompte();
+        isVisible = false;
+    }
+
+    private bool FilterFunc1(Compte element) => FilterFunc(element, searchString1);
+    private bool FilterFunc(Compte element, string searchString)
+    {
+        if (string.IsNullOrWhiteSpace(searchString))
+            return true;
+        if (element.CompteId.ToString().Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        if (element.NomCompte.ToString().Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        if (element.NumCompte.ToString().Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        return false;
+    }
+
+    private async Task LoadTableCompte()
+    {
+        comptes = await optionService.GetAllComptesAsync();
+        StateHasChanged();
+    }
+
+    private void Annuler()
+    {
+        compte.NumCompte = "";
+        compte.NomCompte = "";
+        form.ResetValidation();
+
+    }
+
+    private async void AddCompte()
+    {
+        form.Validate();
+        if (success)
+        {
+            bool result = await optionService.CreateCompteAsync(compte);
+            if (result)
+            {
+                Snackbar.Add("Enregistrement réussi.", Severity.Success);
+                await LoadTableCompte();
+                compte = new();
+            }
+            else
+            {
+                Snackbar.Add("Erreur d'enregistrement, contacter l'administrateur.", Severity.Error);
+            }
+        }
+        else
+        {
+            Snackbar.Add("Veuillez compléter tous les champs", Severity.Warning);
+        }
+    }
+
+}

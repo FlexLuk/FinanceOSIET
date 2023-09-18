@@ -1,0 +1,14 @@
+﻿@using Microsoft.AspNetCore.Http.Extensions;
+@inject NavigationManager navigation
+
+@code {
+	[Parameter]
+	public bool IsAuthenticated { get; set; }
+
+	protected override void OnInitialized()
+	{
+
+		navigation.NavigateTo("/authentification", true);
+
+	}
+}
